@@ -107,9 +107,9 @@ def serveFiles(port, folder):
         try:
             print "Serving "+fromaddr
             handleRequest(newsocket, folder, tree)
-    finally:
-        newsocket.shutdown(socket.SHUT_RDWR)
-        newsocket.close()
+        finally:
+            newsocket.shutdown(socket.SHUT_RDWR)
+            newsocket.close()
         
 def handleRequest(s, pTree, tree):
     op = s.recv(1)
