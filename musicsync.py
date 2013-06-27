@@ -72,10 +72,68 @@ def loadAdded(path):
     return fileData
 
 def downloadTree(host, port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    s.send('h')
+    size = s.recv(20)
+    pickledTree = s.recv(int(size))
+    return pickle.loads(pickledTree)
 
 def downloadSongs(host, port, actions):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    for songHash, songLocation in actions:
+        songHandle = open(songLocation, 'wb')
+        s.connect((host,port))
+        s.send('s')
+        s.send(songHash)
+        size = s.recv(20)
+        song = s.recv(int(size))
+        songHandle.write(song)
+        songHandle.close()
+        s.close()
 
-def serveFiles(port):
+def serveFiles(port, folder):
+    print "Building tree."
+    tree = buildTree(folder)
+    print "Pickling tree"
+    pTree = pickle.dumps(tree)
+    print "Ready to serve."
+    
+    bindsocket = socket.socket()
+    bindsocket.bind(('', port))
+    bindsocket.listen(5)
+    while True:
+        newsocket, fromaddr = bindsocket.accept()
+        try:
+            print "Serving "+fromaddr
+            handleRequest(newsocket, folder, tree)
+    finally:
+        newsocket.shutdown(socket.SHUT_RDWR)
+        newsocket.close()
+        
+def handleRequest(s, pTree, tree):
+    op = s.recv(1)
+    if(op == 'h'): #hashtree
+        s.send(fit(len(pTree)))
+        s.send(pTree)
+        return
+
+    if(op == 's'): #song
+        fileHash = stream.recv(64) #receive hash of file
+        location = tree.hashtable[fileHash]
+        size = os.path.getsize(location)
+        song = open(location, 'rb')
+        s.send(fit(size))
+        s.send(song)
+        return
+
+
+def fit(number):
+    string = str(number)
+    while(len(string) < 20):
+        string = '0' + string
+    return string
+        
     
 
 # possible command line args:
@@ -98,7 +156,7 @@ while(len(args) != 0):
         hostname = args.pop()
         hasHost = True
     if(flag == '-p' or flag == '-port'):
-        port = args.pop()
+        port = int(args.pop())
         hasPort = True
     if(flag == '-t' or flag == '-hashtree'):
         hashDump = args.pop()
@@ -122,8 +180,8 @@ while(len(args) != 0):
 
 if(not hasPort):
     port = 7355
-if(isServer):
-    serveFiles(port)
+if(isServer and hasFolder):
+    serveFiles(port, folder)
 if(hasAdd and hasHost):
     actions = {}
     actions["added"] = loadAdded(path)
