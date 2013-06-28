@@ -10,31 +10,40 @@ the program can even go download the songs that are missing.
 Arguments
 ---------
 
- -h, -host hosname
+ -h, -host _hosname_
+ 
     The host to connect to and compare music against. It will also upload music.
  
- -p, -port #
+-p, -port _number_
+
     Port on which to contact the host. Defaults to 7355.
  
- -t, -hashtree path
+-t, -hashtree _path_
+
     Location on disk of pickle file of music library to be used.
  
- -f, -folder path
+-f, -folder _path_
+
     Location on disk where files will loaded and downloaded.
  
- -d, -download false
-    Option to download the files. Defaults to true.
+ -d, -download _bool_
  
- -x, -delete false
-    If files should be removed if they don't exist anymore. Defaults to true.
+    Option to download the files. Options are 'true' or 'false'. Defaults to true.
  
- -a, -add path
-    Location of added files. This can be used to continue downloading if it gets interupted.
+ -x, -delete _bool_
+ 
+    If files should be removed if they don't exist anymore. Options are 'true' or 'false'. Defaults to true.
+ 
+ -a, -add _path_
+ 
+    Location of added files. This can be used to continue downloading if it gets interrupted.
  
  -k, -keep
+ 
     Instructs the program to generate a local hashtree of your music folder
 
  -s, server
+ 
     Instructs the program to host music for download.
 
 Example usage
